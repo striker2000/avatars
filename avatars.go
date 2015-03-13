@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -34,6 +35,8 @@ func getAvatar(w http.ResponseWriter, req *http.Request) {
 		avatarURL, err = getFbAvatar(userID)
 	case "google":
 		avatarURL, err = getGoogleAvatar(userID)
+	case "gravatar":
+		avatarURL, err = getGravatarAvatar(userID)
 	case "vk":
 		avatarURL, err = getVkAvatar(userID)
 	}
@@ -94,6 +97,15 @@ func getGoogleAvatar(userID string) (string, error) {
 	}
 
 	return payload.Image.URL, nil
+}
+
+func getGravatarAvatar(userID string) (string, error) {
+	hash := fmt.Sprintf("%x", md5.Sum([]byte(userID)))
+
+	return fmt.Sprintf(
+		"http://www.gravatar.com/avatar/%s",
+		url.QueryEscape(hash),
+	), nil
 }
 
 type vkResponse struct {
